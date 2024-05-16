@@ -8,9 +8,6 @@ use App\Models\Brand;
 use App\Http\Controllers\BaseController;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Traits\HandlesApiRequests;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
-
 class BrandController extends BaseController
 {
     use HandlesApiRequests;
@@ -42,32 +39,19 @@ class BrandController extends BaseController
 {
     $rules =[
         'name' => 'required|unique:brands',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ];
+        'description' => 'nullable',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation rules for the image
+    ]);
 
-    $validator = Validator::make($request->all(), $rules);
+    $brandData = $request->only(['name', 'description']);
 
-    // Check if validation fails
-    if ($validator->fails()) {
-        return $this->sendErrorResponse('Validation Error', 400);
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
+        $brandData['image'] = $imagePath;
     }
 
-    try {
-        $brandData = $request->only(['name']);
-        $slug = Str::slug($brandData['name']);
-
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('brands', 'public'); // Store the uploaded image
-            $brandData['image'] = $imagePath;
-        }
-        $brandData['slug'] = $slug;
-        $brand = Brand::create($brandData);
-        return $this->sendSuccessResponse('Record created successfully', $brand, 201);
-    } catch (ModelNotFoundException $e) {
-        // Handle any unexpected errors
-        return $this->sendErrorResponse('Failed to create record', 500);
-    }
-
+    $brand = Brand::create($brandData);
+    return response()->json(['brand' => $brand], 201);
 }
 
 public function update(Request $request, $id)
