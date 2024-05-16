@@ -36,11 +36,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Admin Routes
 Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function () {
-    
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories', [CategoryController::class, 'update']);
+
+    Route::post('/brands', [BrandController::class, 'store']);
+    Route::put('/brands', [BrandController::class, 'update']);
+
+    Route::put('/sizes', [SizeController::class, 'store']);
+    Route::put('/sizes', [SizeController::class, 'update']);
+
+    Route::put('/colors', [ColorController::class, 'store']);
+    Route::put('/colors', [ColorController::class, 'update']);
+
+    Route::get('/products', [ProductController::class, 'store']);
+    Route::get('/update', [ProductController::class, 'update']);
 });
 // User Route
 Route::middleware(['auth:sanctum', CheckRole::class . ':user'])->group(function () {
-    
+
 });
 
 

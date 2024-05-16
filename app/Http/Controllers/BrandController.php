@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use App\Http\Controllers\BaseController;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Traits\HandlesApiRequests;
+
 class BrandController extends BaseController
 {
     use HandlesApiRequests;
-
     public function index(Request $request)
     {
         $query = Brand::query();
@@ -27,8 +28,12 @@ class BrandController extends BaseController
 
     public function show($id)
     {
-        $brand = Brand::findOrFail($id);
-        return response()->json(['brand' => $brand]);
+        try {
+            $brand = Brand::findOrFail($id);
+            return $this->sendSuccessResponse('Record retrieved successfully', $brand);
+        } catch (ModelNotFoundException $e) {
+            return $this->sendErrorResponse('No records found', 404);
+        }
     }
 
     public function store(Request $request)
@@ -39,42 +44,55 @@ class BrandController extends BaseController
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation rules for the image
     ]);
 
-    $brandData = $request->only(['name', 'description']);
+    try {
+        $brandData = $request->only(['name', 'description']);
 
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
-        $brandData['image'] = $imagePath;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
+            $brandData['image'] = $imagePath;
+        }
+        $brand = Brand::create($brandData);
+        return $this->sendSuccessResponse('Record created successfully', $color, 201);
+    } catch (ModelNotFoundException $e) {
+        // Handle any unexpected errors
+        return $this->sendErrorResponse('Failed to create record', 500);
     }
 
-    $brand = Brand::create($brandData);
-    return response()->json(['brand' => $brand], 201);
 }
 
 public function update(Request $request, $id)
 {
-    $brand = Brand::findOrFail($id);
+    try {
+        $color = Brand::findOrFail($id);
+        $request->validate([
+            'name' => 'required|unique:brands,name,' . $id,
+            'description' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-    $request->validate([
-        'name' => 'required|unique:brands,name,' . $id,
-        'description' => 'nullable',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation rules for the image
-    ]);
+        $brandData = $request->only(['name', 'description']);
 
-    $brandData = $request->only(['name', 'description']);
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
+            $brandData['image'] = $imagePath;
+        }
 
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
-        $brandData['image'] = $imagePath;
+        $brand->update($brandData);
+        return $this->sendSuccessResponse('Record updated successfully', $color);
+    } catch (ModelNotFoundException $e) {
+        return $this->sendErrorResponse('No records found', 404);
     }
 
-    $brand->update($brandData);
-    return response()->json(['brand' => $brand]);
 }
 
     public function destroy($id)
     {
-        $brand = Brand::findOrFail($id);
-        $brand->delete();
-        return response()->json(['message' => 'Brand deleted successfully']);
+        try {
+            $brand = Brand::findOrFail($id);
+            $brand->delete();
+            return $this->sendSuccessResponse('Record deleted successfully');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendErrorResponse('No records found', 404);
+        }
     }
 }

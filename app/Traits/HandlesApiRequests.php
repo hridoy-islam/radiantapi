@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 trait HandlesApiRequests
 {
     protected function handleApiRequest(Request $request, Builder $query)
@@ -20,13 +21,13 @@ trait HandlesApiRequests
             }
         }
 
+        // Apply search
         $searchTerm = $request->query('searchTerm');
-        if ($searchTerm) {
-            $query->where(function ($query) use ($searchTerm, $request) {
-                foreach ($request->query() as $key => $value) {
-                    if ($key !== 'page' && $key !== 'limit' && $key !== 'sortBy' && $key !== 'sortDirection') {
-                        $query->orWhere($key, 'like', "%$searchTerm%");
-                    }
+        if ($searchTerm!== null) {
+            $columns = Schema::getColumnListing($query->getModel()->getTable());
+            $query->where(function ($query) use ($searchTerm, $columns) {
+                foreach ($columns as $column) {
+                    $query->orWhere($column, 'like', "%$searchTerm%");
                 }
             });
         }
@@ -48,8 +49,8 @@ trait HandlesApiRequests
         ];
 
         // Format response data
-        $data = $results->items();
+        $result = $results->items();
 
-        return compact('meta', 'data');
+        return compact('meta', 'result');
     }
 }
