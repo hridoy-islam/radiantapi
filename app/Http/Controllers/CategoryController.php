@@ -8,6 +8,7 @@ use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\HandlesApiRequests;
 use App\Http\Controllers\BaseController;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CategoryController extends BaseController
 {
@@ -47,13 +48,12 @@ class CategoryController extends BaseController
 
     public function show($id)
     {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
+        try {
+            $category = Category::findOrFail($id);
+            return $this->sendSuccessResponse('Record retrieved successfully', $category);
+        } catch (ModelNotFoundException $e) {
+            return $this->sendErrorResponse('No records found', 404);
         }
-
-        return response()->json(['category' => $category]);
     }
 
     public function update(Request $request, $id)
@@ -82,14 +82,12 @@ class CategoryController extends BaseController
 
     public function destroy($id)
     {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
+            return $this->sendSuccessResponse('Record deleted successfully', $category);
+        } catch (ModelNotFoundException $e) {
+            return $this->sendErrorResponse('No records found', 404); 
         }
-
-        $category->delete();
-
-        return response()->json(['message' => 'Category deleted successfully']);
     }
 }

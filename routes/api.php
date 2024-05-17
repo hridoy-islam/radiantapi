@@ -15,9 +15,15 @@ use App\Http\Controllers\ColorController;
 
 
 
-
+// Categories
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+// Brands
 Route::get('/brands', [BrandController::class, 'index']);
+Route::get('/brands/{id}', [BrandController::class, 'show']);
+
+
+
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/sizes', [SizeController::class, 'index']);
@@ -38,10 +44,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function () {
 
     Route::post('/categories', [CategoryController::class, 'store']);
-    Route::put('/categories', [CategoryController::class, 'update']);
+    Route::patch('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
     Route::post('/brands', [BrandController::class, 'store']);
-    Route::put('/brands/{id}', [BrandController::class, 'update']);
+    Route::patch('/brands/{id}', [BrandController::class, 'update']);
+    Route::delete('/brands/{id}', [BrandController::class, 'destroy']);
 
     Route::put('/sizes', [SizeController::class, 'store']);
     Route::put('/sizes', [SizeController::class, 'update']);
