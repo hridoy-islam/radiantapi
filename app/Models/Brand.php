@@ -9,14 +9,5 @@ class Brand extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'image'];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($brand) {
-            $brand->slug = Str::slug($brand->name);
-        });
-    }
+    protected $fillable = ['name', 'image'];
 }

@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function
     Route::put('/categories', [CategoryController::class, 'update']);
 
     Route::post('/brands', [BrandController::class, 'store']);
-    Route::put('/brands', [BrandController::class, 'update']);
+    Route::put('/brands/{id}', [BrandController::class, 'update']);
 
     Route::put('/sizes', [SizeController::class, 'store']);
     Route::put('/sizes', [SizeController::class, 'update']);

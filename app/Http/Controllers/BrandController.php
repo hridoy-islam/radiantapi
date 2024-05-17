@@ -8,6 +8,10 @@ use App\Models\Brand;
 use App\Http\Controllers\BaseController;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Traits\HandlesApiRequests;
+use Illuminate\Support\Facades\Validator;
+
+
+
 class BrandController extends BaseController
 {
     use HandlesApiRequests;
@@ -37,21 +41,25 @@ class BrandController extends BaseController
 
     public function store(Request $request)
 {
-    $rules =[
+    
+    $validator = Validator::make($request->all(), [
         'name' => 'required|unique:brands',
-        'description' => 'nullable',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation rules for the image
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    $brandData = $request->only(['name', 'description']);
+    if ($validator->fails()) {
+        return $this->sendErrorResponse($validator->errors(), 404);
+    }
+
+    $brandData = $request->only(['name']);
 
     if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
+        $imagePath = $request->file('image')->store('brands', 'public'); // Store the uploaded image
         $brandData['image'] = $imagePath;
     }
 
     $brand = Brand::create($brandData);
-    return response()->json(['brand' => $brand], 201);
+    return $this->sendSuccessResponse('Record Created successfully', $brand);
 }
 
 public function update(Request $request, $id)
@@ -59,15 +67,14 @@ public function update(Request $request, $id)
     try {
         $color = Brand::findOrFail($id);
         $request->validate([
-            'name' => 'required|unique:brands,name,' . $id,
-            'description' => 'nullable',
+            'name' => 'required|unique:brands',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $brandData = $request->only(['name', 'description']);
+        $brandData = $request->only(['name']);
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('brands'); // Store the uploaded image
+            $imagePath = $request->file('image')->store('brands', 'public'); // Store the uploaded image
             $brandData['image'] = $imagePath;
         }
 
