@@ -11,6 +11,7 @@ use App\Traits\HandlesApiRequests;
 class ProductController extends BaseController
 {
     use HandlesApiRequests;
+
     public function index(Request $request)
     {
         $query = Product::query()->with('category')->with('brand');

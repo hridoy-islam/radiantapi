@@ -6,63 +6,90 @@ use App\Models\Size;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use App\Traits\HandlesApiRequests;
+use Illuminate\Support\Facades\Validator;
 
 class SizeController extends BaseController
 {
     use HandlesApiRequests;
     public function index(Request $request)
     {
-        $query = Size::query();
-        $results = $this->handleApiRequest($request, $query);
-
-        // Convert $results to a collection if it's an array
-        $results = collect($results);
-        if ($results->isEmpty()) {
-            return $this->sendErrorResponse('No records found', 404);
+        try {
+            $query = Size::query();
+            $results = $this->handleApiRequest($request, $query);
+    
+            // Convert $results to a collection if it's an array
+            $results = collect($results);
+            if ($results->isEmpty()) {
+                return $this->sendErrorResponse('No records found', 404);
+            }
+            return $this->sendSuccessResponse('Records retrieved successfully', $results);
         }
-
-        return $this->sendSuccessResponse('Records retrieved successfully', $results);
+        catch(\Exception $e){
+            
+            return $this->sendErrorResponse('Invalid query parameters', 400);
+        }
     }
 
-    public function create()
+    public function show($id)
     {
-        return view('sizes.create');
+        try {
+            $size = Size::findOrFail($id);
+            return $this->sendSuccessResponse('Record retrieved successfully', $size);
+        } catch (ModelNotFoundException $e) {
+            return $this->sendErrorResponse('No records found', 404);
+        }
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        
+        $validator = Validator::make($request->all(), [
             'name' => 'required|unique:sizes|max:255',
         ]);
+    
+        if ($validator->fails()) {
+            return $this->sendErrorResponse($validator->errors(), 404);
+        }
 
-        Size::create($request->all());
-
-        return redirect()->route('sizes.index')
-            ->with('success', 'Size created successfully.');
+        try {
+            // Attempt to create a new color
+            $size = Size::create($request->all());
+            return $this->sendSuccessResponse('Record created successfully', $size, 201);
+        } catch (ModelNotFoundException $e) {
+            // Handle any unexpected errors
+            return $this->sendErrorResponse('Failed to create record', 500);
+        }
     }
 
-    public function edit(Size $size)
+    public function update(Request $request,  $id)
     {
-        return view('sizes.edit', compact('size'));
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|unique:sizes|max:255',
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendErrorResponse($validator->errors(), 404);
+            }
+    
+            // Find the brand by ID
+            $size = Size::findOrFail($id);
+            $size->update($request->all());
+            return $this->sendSuccessResponse('Record updated successfully', $size);
+        }catch (ModelNotFoundException $e) {
+            // Handle other exceptions (e.g., not found)
+            return $this->sendErrorResponse('Record Not Found', 404);
+        }
     }
 
-    public function update(Request $request, Size $size)
+    public function destroy($id)
     {
-        $request->validate([
-            'name' => 'required|unique:sizes|max:255',
-        ]);
-
-        $size->update($request->all());
-
-        return redirect()->route('sizes.index')
-            ->with('success', 'Size updated successfully');
-    }
-
-    public function destroy(Size $size)
-    {
-        $size->delete();
-
-        return redirect()->route('sizes.index')
-            ->with('success', 'Size deleted successfully');
+        try {
+            $size = Size::findOrFail($id);
+            $size->delete();
+            return $this->sendSuccessResponse('Record deleted successfully');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendErrorResponse('No records found', 404);
+        }
     }
 }

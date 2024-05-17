@@ -13,6 +13,9 @@ trait HandlesApiRequests
         $limit = $request->query('limit', 10);
         $sortBy = $request->query('sortBy');
         $sortDirection = $request->query('sortDirection', 'asc');
+        
+
+
 
         // Apply filters
         foreach ($request->query() as $key => $value) {
@@ -53,4 +56,6 @@ trait HandlesApiRequests
 
         return compact('meta', 'result');
     }
+
+    
 }

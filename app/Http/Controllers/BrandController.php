@@ -15,18 +15,29 @@ use Illuminate\Support\Facades\Validator;
 class BrandController extends BaseController
 {
     use HandlesApiRequests;
+
+    
+
     public function index(Request $request)
     {
-        $query = Brand::query();
-        $results = $this->handleApiRequest($request, $query);
-
-        // Convert $results to a collection if it's an array
-        $results = collect($results);
-        if ($results->isEmpty()) {
-            return $this->sendErrorResponse('No records found', 404);
+        try {
+            $query = Brand::query();
+            $results = $this->handleApiRequest($request, $query);
+    
+            // Convert $results to a collection if it's an array
+            $results = collect($results);
+            if ($results->isEmpty()) {
+                return $this->sendErrorResponse('No records found', 404);
+            }
+            return $this->sendSuccessResponse('Records retrieved successfully', $results);
         }
+        catch(\Exception $e){
+            
+            return $this->sendErrorResponse('Invalid query parameters', 400);
+        }
+        
 
-        return $this->sendSuccessResponse('Records retrieved successfully', $results);
+        
     }
 
     public function show($id)

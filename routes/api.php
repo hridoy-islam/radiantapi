@@ -26,7 +26,10 @@ Route::get('/brands/{id}', [BrandController::class, 'show']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/orders', [OrderController::class, 'index']);
+
 Route::get('/sizes', [SizeController::class, 'index']);
+Route::get('/sizes/{id}', [SizeController::class, 'show']);
+
 Route::get('/colors', [ColorController::class, 'index']);
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -51,14 +54,17 @@ Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function
     Route::patch('/brands/{id}', [BrandController::class, 'update']);
     Route::delete('/brands/{id}', [BrandController::class, 'destroy']);
 
-    Route::put('/sizes', [SizeController::class, 'store']);
-    Route::put('/sizes', [SizeController::class, 'update']);
+    Route::post('/sizes', [SizeController::class, 'store']);
+    Route::patch('/sizes/{id}', [SizeController::class, 'update']);
+    Route::delete('/sizes/{id}', [SizeController::class, 'destroy']);
 
-    Route::put('/colors', [ColorController::class, 'store']);
-    Route::put('/colors', [ColorController::class, 'update']);
+    Route::post('/colors', [ColorController::class, 'store']);
+    Route::patch('/colors/{id}', [ColorController::class, 'update']);
+    Route::delete('/colors/{id}', [ColorController::class, 'destroy']);
 
-    Route::get('/products', [ProductController::class, 'store']);
-    Route::get('/update', [ProductController::class, 'update']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::patch('/update', [ProductController::class, 'update']);
+    
 });
 // User Route
 Route::middleware(['auth:sanctum', CheckRole::class . ':user'])->group(function () {
