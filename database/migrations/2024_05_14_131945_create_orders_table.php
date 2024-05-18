@@ -19,9 +19,6 @@ class CreateOrdersTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->decimal('total_amount', 10, 2);
             $table->enum('status', ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
-
-            $table->json('order_items')->nullable();
-            $table->json('product_variations')->nullable();
             $table->timestamps();
         });
 

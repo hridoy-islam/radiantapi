@@ -46,5 +46,24 @@ class AuthController extends Controller
         return response(['message' => 'Bad Cred']);
     }
 
+
+    public function reset(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|string|confirmed|min:8',
+        ]);
+
+        $response = Password::reset($request->all(), function ($user, $password) {
+            $user->password = bcrypt($password);
+            $user->save();
+        });
+
+        return $response == Password::PASSWORD_RESET
+                    ? response()->json(['message' => 'Password reset successfully'], 200)
+                    : response()->json(['message' => 'Unable to reset password'], 400);
+    }
+
     
 }

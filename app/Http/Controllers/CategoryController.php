@@ -35,7 +35,7 @@ class CategoryController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return $this->sendErrorResponse($validator->errors(), 404);
         }
 
         $category = Category::create([
@@ -43,7 +43,7 @@ class CategoryController extends BaseController
             // You can add other fields like slug, parent_id, etc. here
         ]);
 
-        return response()->json(['category' => $category], 201);
+        return $this->sendSuccessResponse('Record Created successfully', $category);
     }
 
     public function show($id)
@@ -61,7 +61,7 @@ class CategoryController extends BaseController
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
+            return $this->sendErrorResponse('Record Not found', 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -70,14 +70,14 @@ class CategoryController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return $this->sendErrorResponse($validator->errors(), 404);
         }
 
         $category->name = $request->input('name');
         // Update other fields as needed
         $category->save();
 
-        return response()->json(['category' => $category]);
+        return $this->sendSuccessResponse('Record created successfully', $category, 201);
     }
 
     public function destroy($id)

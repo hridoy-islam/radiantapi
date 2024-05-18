@@ -12,4 +12,19 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function history()
+    {
+        return $this->hasMany(OrderHistory::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

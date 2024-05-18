@@ -36,8 +36,6 @@ class BrandController extends BaseController
             return $this->sendErrorResponse('Invalid query parameters', 400);
         }
         
-
-        
     }
 
     public function show($id)
