@@ -5,10 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\CheckRole;
 
-
-
 use App\Http\Controllers\OrderController;
-
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ContactController;
@@ -26,9 +23,9 @@ Route::post('/password/reset', [AuthController::class, 'reset']);
 
 // Admin and User Common
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/user', [UserController::class, 'index']);
-    Route::patch('/user/{id}', [UserController::class, 'update']);
-    Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::resource('/user', UserController::class)->except(['edit', 'create', 'destroy']);
+    Route::post('/userdetails/{userId}', [UserController::class, 'storeUserDetails']);
+    Route::patch('/userdetails/{userId}', [UserController::class, 'updateUserDetails']);
 });
 
 
