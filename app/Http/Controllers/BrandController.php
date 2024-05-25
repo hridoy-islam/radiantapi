@@ -16,14 +16,14 @@ class BrandController extends BaseController
 {
     use HandlesApiRequests;
 
-    
+
 
     public function index(Request $request)
     {
         try {
             $query = Brand::query();
             $results = $this->handleApiRequest($request, $query);
-    
+
             // Convert $results to a collection if it's an array
             $results = collect($results);
             if ($results->isEmpty()) {
@@ -32,10 +32,10 @@ class BrandController extends BaseController
             return $this->sendSuccessResponse('Records retrieved successfully', $results);
         }
         catch(\Exception $e){
-            
+
             return $this->sendErrorResponse('Invalid query parameters', 400);
         }
-        
+
     }
 
     public function show($id)
@@ -50,7 +50,7 @@ class BrandController extends BaseController
 
     public function store(Request $request)
 {
-    
+
     $validator = Validator::make($request->all(), [
         'name' => 'required|unique:brands',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -78,7 +78,7 @@ public function update(Request $request, $id)
             'name' => 'required|unique:brands',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         if ($validator->fails()) {
             return $this->sendErrorResponse($validator->errors(), 404);
         }
@@ -101,7 +101,7 @@ public function update(Request $request, $id)
         // Handle other exceptions (e.g., not found)
         return $this->sendErrorResponse('Record Not Found', 404);
     }
-    
+
 }
 
     public function destroy($id)

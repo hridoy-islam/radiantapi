@@ -1,4 +1,4 @@
-<?php 
+<?php
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ColorController;
@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckRole;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\OrderController;
 
 Route::get('/brands', [BrandController::class, 'index']);
 Route::get('/brands/{id}', [BrandController::class, 'show']);
@@ -37,4 +38,6 @@ Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function
     Route::resource('/categories', CategoryController::class)->except(['index', 'show', 'edit', 'create']);
     Route::resource('/coupons', CouponController::class)->except(['edit', 'create']);
     Route::resource('/contacts', ContactController::class)->except(['edit', 'create', 'update']);
+
+    Route::resource('/orders', OrderController::class)->except(['edit', 'create']);
 });

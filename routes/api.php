@@ -31,11 +31,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Admin Routes
 Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function () {
-    
-    
-    
+
+
+
 });
 // User Route
 Route::middleware(['auth:sanctum', CheckRole::class . ':user'])->group(function () {
 
 });
+
+

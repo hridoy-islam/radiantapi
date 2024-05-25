@@ -13,13 +13,13 @@ trait HandlesApiRequests
         $limit = $request->query('limit', 10);
         $sortBy = $request->query('sortBy');
         $sortDirection = $request->query('sortDirection', 'asc');
-        
+        $selectFields = $request->query('select');
 
 
 
         // Apply filters
         foreach ($request->query() as $key => $value) {
-            if ($key !== 'page' && $key !== 'limit' && $key !== 'searchTerm' && $key !== 'sortBy' && $key !== 'sortDirection') {
+            if ($key !== 'page' && $key !== 'limit' && $key !== 'searchTerm' && $key !== 'sortBy' && $key !== 'sortDirection' && $key !== 'select') {
                 $query->where($key, $value);
             }
         }
@@ -40,22 +40,34 @@ trait HandlesApiRequests
             $query->orderBy($sortBy, $sortDirection);
         }
 
+        if($selectFields !== null) {
+            $query->select(explode(',', $selectFields));
+            $results = $query->get();
+        }
+        if ($limit === 'all' ) {
+            $results = $query->get();
+            $total = $results->count();
+        } else {
+            // Paginate data if limit is not 'all'
+            $results = $query->paginate($limit, ['*'], 'page', $page);
+            $total = $results->total();
+        }
         // Paginate and format response
-        $results = $query->paginate($limit, ['*'], 'page', $page);
+       // $results = $query->paginate($limit, ['*'], 'page', $page);
 
         // Extract relevant pagination data
         $meta = [
             'page' => $page,
-            'limit' => $limit,
-            'total' => $results->total(),
-            'totalPage' => $results->lastPage(),
+            'limit' => $limit === 'all' ? $total : $limit,
+            'total' => $total,
+            'totalPage' => $limit === 'all' ? 1 : $results->lastPage(),
         ];
 
         // Format response data
-        $result = $results->items();
-
+        //$result = $results->items();
+        $result = $results instanceof \Illuminate\Pagination\LengthAwarePaginator ? $results->items() : $results->toArray();
         return compact('meta', 'result');
     }
 
-    
+
 }
