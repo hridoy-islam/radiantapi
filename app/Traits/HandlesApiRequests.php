@@ -40,6 +40,8 @@ trait HandlesApiRequests
             $query->orderBy($sortBy, $sortDirection);
         }
 
+        $query->orderBy('created_at', 'desc');
+
         if($selectFields !== null) {
             $query->select(explode(',', $selectFields));
             $results = $query->get();
