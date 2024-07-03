@@ -14,12 +14,12 @@ class ContactFactory extends Factory
     {
 
         return [
-            'full_name' => $this->faker->name,
+            'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => $this->faker->phoneNumber,
-            'subject' => $this->faker->sentence,
-            'content' => $this->faker->paragraph,
-            'address' => $this->faker->address,
+            'content' => $this->faker->text,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

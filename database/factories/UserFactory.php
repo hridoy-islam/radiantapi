@@ -13,11 +13,11 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
-            'phone' => $this->faker->phoneNumber,
             'email' => $this->faker->unique()->safeEmail,
             'password' => '123456',
-            'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            'email_verified_at' => now(),
+            'role' => $this->faker->randomElement(['admin', 'user']),
+            'created_at' => now(),
             'updated_at' => now(),
         ];
     }

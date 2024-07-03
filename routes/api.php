@@ -5,39 +5,32 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\CheckRole;
 
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ColorController;
-use App\Http\Controllers\CouponController;
+
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CarController;
+use App\Http\Controllers\BlogPostController;
+use App\Http\Controllers\TradeYourCarController;
+use App\Http\Controllers\SellYourCarController;
+use App\Http\Controllers\FinanceApplicantController;
 
 
-require __DIR__ . '/brand.php';
-
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
-Route::post('/password/reset', [AuthController::class, 'reset']);
-
+Route::get('/cars', [CarController::class, 'index']);
+Route::get('/posts', [BlogPostController::class, 'index']);
 
 
 // Admin and User Common
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('/user', UserController::class)->except(['edit', 'create', 'destroy']);
-    Route::post('/userdetails/{userId}', [UserController::class, 'storeUserDetails']);
-    Route::patch('/userdetails/{userId}', [UserController::class, 'updateUserDetails']);
+    Route::resource('/contact', ContactController::class)->except(['edit', 'create', 'destroy']);
+    Route::resource('/finance', FinanceApplicantController::class)->except(['edit', 'create', 'destroy']);
+    Route::resource('/sellcar', SellYourCarController::class)->except(['edit', 'create', 'destroy']);
+    Route::resource('/tradecar', TradeYourCarController::class)->except(['edit', 'create', 'destroy']);
 });
 
 
-// Admin Routes
-Route::middleware(['auth:sanctum', CheckRole::class . ':admin'])->group(function () {
-
-
-
+Route::fallback(function () {
+    return response()->json(['message' => 'HTTP method not allowed for this route.'], 405);
 });
-// User Route
-Route::middleware(['auth:sanctum', CheckRole::class . ':user'])->group(function () {
-
-});
-
-
+ 
