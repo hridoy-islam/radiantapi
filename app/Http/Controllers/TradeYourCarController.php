@@ -27,51 +27,50 @@ class TradeYourCarController extends BaseController
         return $this->sendSuccessResponse('Records retrieved successfully', $results);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:your_table_name',
+            'current_car_brand' => 'required|string|max:255',
+            'current_car_model' => 'required|string|max:255',
+            'current_car_year' => 'required|digits:4|integer|min:1900|max:' . date('Y'),
+            'current_car_mileage' => 'required|integer',
+            'current_car_transmission_type' => 'required|string|max:255',
+            'current_car_photos' => 'nullable|array|max:10',
+            'current_car_photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'current_car_special_notes' => 'nullable|string',
+            'expected_car_model' => 'required|string|max:255',
+            'expected_car_year' => 'required|digits:4|integer|min:1900|max:' . date('Y'),
+            'expected_car_mileage' => 'required|integer',
+            'expected_car_transmission_type' => 'required|string|max:255',
+            'expected_car_special_notes' => 'nullable|string',
+        ]);
+
+        try {
+            $carExchangeRequest = new TradeYourCar($validatedData);
+
+            // Handle current car photos upload and store as JSON
+            if ($request->hasFile('current_car_photos')) {
+                $photoPaths = [];
+                foreach ($request->file('current_car_photos') as $photo) {
+                    $photoPaths[] = $photo->store('current_car_photos', 'public');
+                }
+                $carExchangeRequest->current_car_photos = json_encode($photoPaths);
+            }
+
+            $carExchangeRequest->save();
+
+            return $this->sendSuccessResponse('Records created successfully', $carExchangeRequest);
+        } catch (\Exception $e) {
+            
+            return $this->sendErrorResponse('An error occurred: ' . $e->getMessage(), 500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    
 }

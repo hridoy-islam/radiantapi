@@ -24,8 +24,7 @@ return new class extends Migration
             $table->string('vin')->unique();
             $table->integer('km');
             $table->string('engine');
-            $table->string('fuel_efficiency_city');
-            $table->string('fuel_efficiency_hwy');
+            $table->string('fuel_efficiency');
             $table->string('drivetrain');
             $table->integer('price');
             $table->text('overview');
