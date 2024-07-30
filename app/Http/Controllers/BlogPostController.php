@@ -40,7 +40,7 @@ class BlogPostController extends BaseController
             $post->content = $validatedData['content'];
             $post->seo_title = $validatedData['title'];
             $post->meta_description = Str::limit(strip_tags($validatedData['content']), 160);
-            $post->meta_keywords = $this->generateMetaKeywords($validatedData['content']);
+            //$post->meta_keywords = $this->generateMetaKeywords($validatedData['content']);
             $post->og_title = $validatedData['title'];
             $post->og_description = Str::limit(strip_tags($validatedData['content']), 160);
             if ($request->hasFile('thumbnail')) {
@@ -52,7 +52,7 @@ class BlogPostController extends BaseController
             $post->canonical_url = Str::slug($validatedData['title'], '-');
             $post->save();
     
-            return $this->sendSuccessResponse('Record created successfully', $car);
+            return $this->sendSuccessResponse('Record created successfully', $post);
         } catch (\Exception $e) {
             return $this->sendErrorResponse('An error occurred: ' . $e->getMessage(), 500);
         }

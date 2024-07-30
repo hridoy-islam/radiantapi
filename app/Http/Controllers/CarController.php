@@ -32,6 +32,29 @@ class CarController extends BaseController
      */
     public function store(Request $request)
     {
+        $data = $request->all();
+        $booleanFields = [
+            'bluetooth',
+            'cruiseControl',
+            'smartphoneIntegration',
+            'backupCamera',
+            'multizoneAC',
+            'rearAC',
+            'keylessEntry',
+            'antiLockBrakes',
+            'powerSeats',
+            'thirdRowSeating',
+            'heatedSeats',
+            'remoteStart'
+        ];
+    
+        foreach ($booleanFields as $field) {
+            if (isset($data[$field])) {
+                $data[$field] = filter_var($data[$field], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            } else {
+                $data[$field] = false; // Default value if not set
+            }
+        }
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'image_gallery.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -40,20 +63,35 @@ class CarController extends BaseController
             'body_style' => 'required|string|max:255',
             'transmission' => 'required|string|max:255',
             'stock' => 'required|string|max:255',
-            'vin' => 'required|string|max:17|unique:cars',
+            'vin' => 'required|string',
             'km' => 'required|integer',
             'engine' => 'required|string|max:255',
             'fuel_efficiency' => 'required|string|max:255',
             'drivetrain' => 'required|string|max:255',
             'price' => 'required|integer',
+            'year' => 'required|integer',
+            'cartype' => 'required|string',
             'overview' => 'required|string',
-            'features' => 'nullable|json',
-            'exterior' => 'nullable|json',
-            'interior' => 'nullable|json',
-            'entertainment' => 'nullable|json',
-            'mechanical' => 'nullable|json',
-            'safety' => 'nullable|json',
-            'techspecs' => 'nullable|json',
+            'bluetooth' => 'nullable|string',
+            'cruiseControl' => 'nullable|string',
+            'smartphoneIntegration' => 'nullable|string',
+            'backupCamera' => 'nullable|string',
+            'multizoneAC' => 'nullable|string',
+            'rearAC' => 'nullable|string',
+            'keylessEntry' => 'nullable|string',
+            'antiLockBrakes' => 'nullable|string',
+            'powerSeats' => 'nullable|string',
+            'thirdRowSeating' => 'nullable|string',
+            'heatedSeats' => 'nullable|string',
+            'remoteStart' => 'nullable|string',
+            'keyLessStart' => 'nullable|string',
+            'streeingwheelcontrol' => 'nullable|string',
+            'exterior' => 'nullable|string',
+            'interior' => 'nullable|string',
+            'entertainment' => 'nullable|string',
+            'mechanical' => 'nullable|string',
+            'safety' => 'nullable|string',
+            'techspecs' => 'nullable|string',
             'title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:160',
             'meta_keywords' => 'nullable|string',
@@ -76,8 +114,21 @@ class CarController extends BaseController
         $car->fuel_efficiency = $request->fuel_efficiency;
         $car->drivetrain = $request->drivetrain;
         $car->price = $request->price;
+        $car->year = $request->year;
+        $car->cartype = $request->cartype;
         $car->overview = $request->overview;
-        $car->features = $request->features;
+        $car->bluetooth = $request->bluetooth;
+        $car->cruiseControl = $request->cruiseControl;
+        $car->smartphoneIntegration = $request->smartphoneIntegration;
+        $car->backupCamera = $request->backupCamera;
+        $car->multizoneAC = $request->multizoneAC;
+        $car->rearAC = $request->rearAC;
+        $car->keylessEntry = $request->keylessEntry;
+        $car->antiLockBrakes = $request->antiLockBrakes;
+        $car->powerSeats = $request->powerSeats;
+        $car->thirdRowSeating = $request->thirdRowSeating;
+        $car->heatedSeats = $request->heatedSeats;
+        $car->remoteStart = $request->remoteStart;
         $car->exterior = $request->exterior;
         $car->interior = $request->interior;
         $car->entertainment = $request->entertainment;
@@ -88,15 +139,17 @@ class CarController extends BaseController
         $car->meta_description = Str::limit($request->overview, 160);
         $car->meta_keywords = $this->generateMetaKeywords($request);
         $car->og_title = $request->name;
-        $car->og_description = $request->Str::limit($request->overview, 160);
+        $car->og_description = Str::limit($request->overview, 160);
+        $imageGallery = [];
         if ($request->hasFile('image_gallery')) {
-            $imageGallery = $this->uploadImages($request->file('image_gallery'));
-            $car->image_gallery = $imageGallery;
-    
-            // Set the first image as og_image
-            $galleryArray = json_decode($imageGallery);
-            $car->og_image = $galleryArray[0] ?? null;
+            foreach ($request->file('image_gallery') as $image) {
+                // Store each image
+                $imageName = $image->store('image_gallery', 'public');
+                $imageGallery[] = $imageName;
+            }
         }
+        $car->image_gallery = json_encode($imageGallery);
+
         $car->save();
         return $this->sendSuccessResponse('Record created successfully', $car);
         } catch (\Exception $e) {
@@ -133,7 +186,7 @@ class CarController extends BaseController
     public function show($slug)
     {
         try {
-            $car = Car::where('slug', $slug)->firstOrFail();
+            $car = Car::where('url', $slug)->firstOrFail();
             return $this->sendSuccessResponse('Records retrieved successfully', $car);
         } catch (\Exception $e) {
             return $this->sendErrorResponse('An error occurred: ' . $e->getMessage(), 500);
@@ -162,6 +215,8 @@ class CarController extends BaseController
             'fuel_efficiency' => 'sometimes|string|max:255',
             'drivetrain' => 'sometimes|string|max:255',
             'price' => 'sometimes|integer',
+            'year' => 'sometimes|integer',
+            'cartype' => 'sometimes|string',
             'overview' => 'sometimes|string',
             'features' => 'sometimes|nullable|json',
             'exterior' => 'sometimes|nullable|json',

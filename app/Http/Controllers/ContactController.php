@@ -28,23 +28,26 @@ class ContactController extends BaseController
     }
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'full_name' => 'required|string|max:255',
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'subject' => 'required|string|max:255',
             'content' => 'required|string',
-            'address' => 'nullable|string|max:255',
-            
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendErrorResponse($validator->errors(), 404);
+        try {
+            $contact = new Contact;
+            $contact->name = $validatedData['name'];
+            $contact->email = $validatedData['email'];
+            $contact->phone = $validatedData['phone'];
+            $contact->content = $validatedData['content'];
+            $contact->save();
+    
+            return $this->sendSuccessResponse('Record created successfully', $contact);
+        } catch (\Exception $e) {
+            return $this->sendErrorResponse('An error occurred: ' . $e->getMessage(), 500);
         }
-
-        $contact = Contact::create($validator->validated());
-
-        return $this->sendSuccessResponse('Record created successfully', $contact, 201);
     }
 
     public function show($id)

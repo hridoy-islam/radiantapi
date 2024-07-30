@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            CarsTableSeeder::class,
+            //CarsTableSeeder::class,
             ContactSeeder::class,
             UserSeeder::class,
             FinanceApplicantSeeder::class,

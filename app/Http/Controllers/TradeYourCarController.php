@@ -34,13 +34,12 @@ class TradeYourCarController extends BaseController
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:your_table_name',
+            'email' => 'required|string|email|max:255',
             'current_car_brand' => 'required|string|max:255',
             'current_car_model' => 'required|string|max:255',
             'current_car_year' => 'required|digits:4|integer|min:1900|max:' . date('Y'),
             'current_car_mileage' => 'required|integer',
             'current_car_transmission_type' => 'required|string|max:255',
-            'current_car_photos' => 'nullable|array|max:10',
             'current_car_photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'current_car_special_notes' => 'nullable|string',
             'expected_car_model' => 'required|string|max:255',
@@ -51,23 +50,19 @@ class TradeYourCarController extends BaseController
         ]);
 
         try {
-            $carExchangeRequest = new TradeYourCar($validatedData);
-
-            // Handle current car photos upload and store as JSON
+            $carExchangeRequest = new TradeYourCar;
+            $carExchangeRequest->fill($validatedData);
             if ($request->hasFile('current_car_photos')) {
-                $photoPaths = [];
-                foreach ($request->file('current_car_photos') as $photo) {
-                    $photoPaths[] = $photo->store('current_car_photos', 'public');
+                $imagePaths = [];
+                foreach ($request->file('current_car_photos') as $image) {
+                    $imagePaths[] = $image->store('current_car_photos', 'public');
                 }
-                $carExchangeRequest->current_car_photos = json_encode($photoPaths);
+                $carExchangeRequest->current_car_photos = json_encode($imagePaths);
             }
-
             $carExchangeRequest->save();
-
             return $this->sendSuccessResponse('Records created successfully', $carExchangeRequest);
         } catch (\Exception $e) {
-            
-            return $this->sendErrorResponse('An error occurred: ' . $e->getMessage(), 500);
+            return $this->sendErrorResponse('An erorr occurd'. $e->getMessage(), 404);
         }
     }
 

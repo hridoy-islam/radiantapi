@@ -29,8 +29,8 @@ return new class extends Migration
             $table->string('mortgage_lender')->nullable();
             $table->decimal('amount_owing_on_mortgage', 20, 2)->nullable();
             $table->decimal('current_value_of_property', 20, 2)->nullable();
-            $table->decimal('payment_per_month_or_biweekly', 20, 2);
-            $table->string('payment_frequency');
+            $table->decimal('payment_per_month_or_biweekly', 20, 2)->nullable();
+            $table->string('payment_frequency')->nullable();
             $table->text('previous_address')->nullable();
             $table->string('previous_postal_code')->nullable();
             $table->string('previous_residence_duration')->nullable();
@@ -39,7 +39,7 @@ return new class extends Migration
             $table->string('employer_phone');
             $table->string('employer_supervisor');
             $table->string('employment_type');
-            $table->boolean('ei_off_season')->nullable();
+            $table->string('ei_off_season')->nullable();
             $table->string('position');
             $table->string('employment_duration');
             $table->string('previous_employer_company')->nullable();
@@ -47,7 +47,7 @@ return new class extends Migration
             $table->string('previous_employer_phone')->nullable();
             $table->string('previous_employer_supervisor')->nullable();
             $table->string('previous_employment_type')->nullable();
-            $table->boolean('previous_ei_off_season')->nullable();
+            $table->string('previous_ei_off_season')->nullable();
             $table->string('previous_position')->nullable();
             $table->string('previous_employment_duration')->nullable();
             $table->decimal('gross_annual_income', 20, 2)->nullable();

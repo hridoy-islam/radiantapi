@@ -36,7 +36,6 @@ class SellYourCarController extends BaseController
             'year' => 'required|digits:4|integer|min:1900|max:' . date('Y'),
             'mileage' => 'required|integer',
             'transmissiontype' => 'required|string|max:255',
-            'images' => 'required|array|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'comment' => 'nullable|string',
         ]);
